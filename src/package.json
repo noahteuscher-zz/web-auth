@@ -1,0 +1,18 @@
+{
+  "scripts": {
+    "start": "node server.js",
+    "server": "nodemon server.js"
+  },
+  "name": "",
+  "version": "0.0.1",
+  "dependencies": {
+    "bcrypt": "^1.0.3",
+    "body-parser": "^1.18.2",
+    "cookie-parser": "^1.4.3",
+    "express": "^4.16.1",
+    "hat": "0.0.3",
+    "lockfile": "^1.0.3",
+    "nodemon": "^1.14.11",
+    "sqlite3": "^3.1.13"
+  }
+}

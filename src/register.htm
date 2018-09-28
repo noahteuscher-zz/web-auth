@@ -1,0 +1,260 @@
+<html>
+
+  <head>
+
+    <link href='https://fonts.googleapis.com/css?family=Space Mono' rel='stylesheet'>
+
+    <style>
+
+      header{
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        border-bottom: 3px solid black;
+        background: linear-gradient(to right, black 15%, white 85%);  width: 100%;
+      }
+
+      div#title, #plug{
+        font-size: 3.5vw;
+        color: white;
+        text-align: center;
+        width: 50%;
+        margin: 0 auto;
+      }
+
+      div#plug{
+        border-top: 3px solid white;
+        font-size: 2vw;
+        padding-bottom: .2em;
+        padding-bottom: .3em;
+      }
+
+      body{
+        font-family: "Space Mono"
+      }
+
+
+
+      .button, .disabledbutton{
+        background-color: black;
+        border: none;
+        color: white;
+        padding: 1vh;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 2.5vh;
+        cursor: pointer;
+        border: 1.5px solid green;
+        border-radius: 30px;
+        margin: 1vh;
+      }
+
+      .disabledbutton{
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .button span{
+        cursor: pointer;
+        display: inline-block;
+        position: relative;
+        transition: 0.5s;
+      }
+
+      .button span:after {
+        content: '\00bb';
+        position: absolute;
+        opacity: 0;
+        top: 0;
+        right: -20px;
+        transition: 0.5s;
+      }
+
+      .button:hover span {
+        padding-right: 25px;
+      }
+
+      .button:hover span:after {
+        opacity: 1;
+        right: 0;
+      }
+
+      .button:hover {
+        background-color: green;
+        border: 1.5px solid black;
+      }
+
+      .button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+
+      input{
+        margin: 1vh;
+        color: green;
+        font-size: 2.5vh;
+      }
+
+      div#container{
+        display: flex;
+        flex-direction: column;
+        width: 30%;
+        margin: 0 auto;
+        margin-top: 26vh;
+        border: 1px dashed black;
+      }
+    </style>
+  </head>
+
+  <header>
+    <div id = "title">
+      N E X U S
+    </div>
+    <div id = "plug">
+      a game by noah teuscher
+    </div>
+  </header>
+
+  <body>
+
+
+    <div id = "container">
+
+      <input id = "username" type = "text" placeholder = "username"></input>
+
+      <input id = "password" type = "password" placeholder = "password"></input>
+
+      <input id = "confirm" type = "password" placeholder = "confirm password"></input>
+
+      <button id = "register" class = "disabledbutton" disabled = "true">
+          <span>register </span>
+      </button>
+
+  </div>
+
+  </body>
+
+  <script>
+
+
+
+  let container = document.getElementById("container")
+  let errormessage = document.createElement("div")
+  errormessage.style.color = "red"
+  errormessage.style.fontSize = "1.7vh"
+  errormessage.style.textAlign = "center"
+  container.appendChild(errormessage)
+
+  let error = false
+
+  function setCookie(name, value) {
+    document.cookie = name +'='+ value +'; Path=/;'
+  }
+  function deleteCookie(name) {
+    document.cookie = name +'=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;'
+  }
+
+  function handleError(errorcode){
+      error = true;
+      errormessage.innerText = errorcode
+  }
+
+  function noError(){
+    error = false;
+    errormessage.innerText = "";
+  }
+
+  function checkError(){
+
+    let serverError = document.cookie.split('error=')[1];
+    let checkresponse = passwordCheck(password.value)
+
+    if(serverError != null){
+      handleError(serverError)
+      deleteCookie('error')
+    }
+
+    else if(checkresponse != "good"){
+      handleError(checkresponse)
+    }
+
+    else if(password.value != confirm.value){
+      handleError("passwords do not match")
+    }
+
+    else noError()
+
+  }
+
+
+  function passwordCheck(password){
+    if (password.length < 6) {
+        return("password must be at least 6 characters");
+    } else if (password.search(/\d/) == -1) {
+        return("password must contain a number");
+    } else if (password.search(/[a-zA-Z]/) == -1) {
+        return "password must contain a letter"
+    }
+    return("good");
+  }
+
+
+
+  function runchecks(){
+
+    checkError()
+
+    if(username.value.length == 0 || password.value.length == 0 || confirm.value.length == 0){
+      register.disabled = true;
+      errormessage.innerText = "";
+      register.className = "disabledbutton"
+    }
+    else{
+      register.disabled = false;
+      register.className = "button"
+    }
+
+  }
+
+  let username = document.getElementById("username")
+
+  let password = document.getElementById("password")
+
+  let confirm = document.getElementById("confirm")
+
+  let registeraccount = document.getElementById("register")
+
+  username.addEventListener("input", runchecks)
+  password.addEventListener("input", runchecks)
+  confirm.addEventListener("input", runchecks)
+
+registeraccount.onclick = function(){
+
+  if(!error){
+
+    let headers = new Headers();
+    headers.append('Content-Type', 'application/json');
+    headers.append('Accept', 'application/json');
+
+    fetch('/register', {
+        method: 'POST',
+        mode: 'same-origin',
+        redirect: 'follow',
+        credentials: 'include', // Don't forget to specify this if you need cookies
+        headers: headers,
+        body: JSON.stringify({
+            username: username.value,
+            password: password.value
+        })
+    }).then(response => window.location = response.url)
+
+  }
+
+}
+
+  window.onload = runchecks
+
+  </script>
+</html>

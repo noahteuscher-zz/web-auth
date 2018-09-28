@@ -1,0 +1,397 @@
+<html>
+  <head>
+
+    <link href='https://fonts.googleapis.com/css?family=Space Mono' rel='stylesheet'>
+
+    <style>
+
+    header{
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      border-bottom: 3px solid black;
+      background: linear-gradient(to right, black 15%, white 85%);  width: 100%;
+    }
+
+    div#title, #plug{
+      font-size: 3.5vw;
+      color: white;
+      text-align: center;
+      width: 50%;
+      margin: 0 auto;
+    }
+
+    div#plug{
+      border-top: 3px solid white;
+      font-size: 2vw;
+      padding-bottom: .2em;
+      padding-bottom: .3em;
+    }
+
+    body{
+      font-family: "Space Mono"
+    }
+
+    button#logout{
+      background-color: black;
+      border: none;
+      color: white;
+      padding: 1vh;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 2.2vh;
+      cursor: pointer;
+      border: 1.5px solid green;
+      border-radius: 8px;
+      margin: 1vh;
+    }
+
+    button#logout:hover {
+      background-color: white;
+      color: black;
+      border: 1.5px solid black;
+    }
+
+    </style>
+  </head>
+
+  <body id = "body">
+    <header>
+      <div id = "title">
+        N E X U S
+      </div>
+      <div id = "plug">
+        a game by noah teuscher
+      </div>
+    </header>
+
+    <button id = "logout">
+      log out
+    </button>
+
+
+
+    <script>
+
+
+      let scoreText = document.getElementById("score");
+      let body = document.getElementById("body")
+
+      let canmoveleft = true;
+      let canmoveright = true;
+
+      let logout = document.getElementById("logout")
+
+      logout.onclick = function(){
+        window.location = ("/")
+      }
+
+      function setCookie(name, value) {
+        document.cookie = name +'='+ value +'; Path=/;'
+      }
+      function deleteCookie(name) {
+        document.cookie = name +'=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;'
+      }
+
+
+      function drawInContext(object, context, playerLives, nexusLives, score){
+
+        if(object.alive){
+          context.fillStyle = object.color
+          context.fillRect(object.positionX, object.positionY, object.width, object.height);
+          object.positionX += object.velocityX;
+          object.positionY += object.velocityY;
+          object.velocityX += object.accelerationX;
+          object.velocityY += object.accelerationY;
+        }
+
+
+        context.fillStyle = "black"
+
+        context.fillText("player lives: ", 20, canvas.height - 20);
+        for(var i = 0; i < playerLives; i++){
+          context.fillRect(((i + 1) * 20) + 125, canvas.height - 28, 10, 10);
+        }
+
+        context.fillText("nexus shields: ", 20, canvas.height - 40);
+        for(var i = 0; i < nexusLives; i++){
+          context.fillRect(((i + 1) * 20) + 125, canvas.height - 48, 10, 10);
+        }
+
+        context.fillText("score: " + score, 20, canvas.height - 60);
+
+      }
+
+
+      let canvas = document.createElement('canvas');
+      let ctx = canvas.getContext("2d");
+
+
+      function setUpStartSceen(){
+
+        score = 0;
+        canvas.id = "CursorLayer";
+
+       let viewportWidth = window.innerWidth;
+       let viewportHeight = window.innerHeight;
+       let canvasWidth = viewportWidth * 0.8;
+       let canvasHeight = canvasWidth / 2.2;
+
+       canvas.style.position = "absolute";
+       canvas.setAttribute("width", canvasWidth);
+       canvas.setAttribute("height", canvasHeight);
+       canvas.style.top = (viewportHeight - canvasHeight) / 1.2 + "px";
+       canvas.style.left = (viewportWidth - canvasWidth) / 2 + "px";
+
+        canvas.style.zIndex = 8;
+        canvas.style.margin = "0 auto";
+        canvas.style.border = "1px solid";
+        let body = document.getElementsByTagName("body")[0];
+        body.appendChild(canvas);
+        cursorLayer = document.getElementById("CursorLayer");
+
+        ctx.font = "30px Space Mono";
+        ctx.fillText("DEFEND THE NEXUS!", canvas.width/4, canvas.height/2 - 40);
+        ctx.font = "14px Space Mono";
+        ctx.fillText("move left and right with the arrow keys", canvas.width/4, canvas.height/2 + 10);
+        ctx.fillText("press spacebar to fire bullets", canvas.width/4, canvas.height/2 + 30);
+        ctx.fillText("destroy the incoming enemy ships to defend your nexus", canvas.width/4, canvas.height/2 + 50);
+        ctx.fillText("click anywhere to begin =>", canvas.width/4, canvas.height/2 + 70);
+
+        canvas.addEventListener('click', startGame);
+
+      }
+
+
+      function gameOver(score){
+
+        let headers = new Headers();
+        headers.append('Content-Type', 'application/json');
+        headers.append('Accept', 'application/json');
+
+
+        fetch('/submitscore', {
+            method: 'POST',
+            mode: 'same-origin',
+            redirect: 'follow',
+            credentials: 'include', // Don't forget to specify this if you need cookies
+            headers: headers,
+            body: JSON.stringify({
+                score: score
+            })
+        })
+
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.font = "30px Space Mono";
+          ctx.fillText("GAME OVER", canvas.width/2.85, canvas.height/2 - 40);
+          ctx.font = "16px Space Mono";
+          ctx.fillText("enemies killed: " + score, canvas.width/2.85, canvas.height/2 + 10);
+
+          let popup = document.createElement("div");
+          popup.style.display = "flex";
+          popup.style.flexDirection = "column";
+          popup.style.position = "absolute";
+          popup.style.width = "200px"
+          popup.style.left = "37%"
+          popup.style.top = "70%"
+          popup.style.zIndex = 9;
+
+          let seeHighScores = document.createElement("button")
+          seeHighScores.innerHTML = "see high scores"
+          seeHighScores.style.width = "200px"
+
+          let restartGame = document.createElement("button")
+          restartGame.innerHTML = "restart game"
+          restartGame.style.width = "200px"
+          restartGame.onclick = function(){
+            setUpStartSceen()
+            body.removeChild(popup)
+          }
+
+          seeHighScores.onclick = function(){
+            window.open("/highscores");
+          }
+
+          popup.appendChild(seeHighScores)
+          popup.appendChild(restartGame)
+          body.appendChild(popup)
+    }
+
+      function startGame() {
+
+          canvas.removeEventListener( 'click',  startGame);
+
+          let GameObjects = [];
+          let score = 0;
+
+          function draw(object){
+            drawInContext(object, ctx, player.lives, nexus.lives, score);
+          }
+
+          function checkWallCollision(object){
+            if(object.positionX < 0){
+              object.velocityX = 0
+              object.positionX = 0
+              canmoveleft = false;
+            }
+
+            if(object.positionX + object.width > canvas.width){
+              object.velocityX = 0
+              object.positionX = canvas.width - object.width
+              canmoveright = false;
+            }
+          }
+
+          function detectCollisions(){
+
+            enemies = GameObjects.filter(object => object.name == "enemy")
+            bullets = GameObjects.filter(object => object.name == "bullet")
+
+            for (var enemy in enemies){
+                for (var bullet in bullets) {
+                  bullets[bullet].detectCollisionWith(enemies[enemy])
+                  checkWallCollision(bullets[bullet])
+                }
+              enemies[enemy].detectCollisionWith(player)
+              enemies[enemy].detectCollisionWith(nexus)
+            }
+            checkWallCollision(player)
+          }
+
+
+
+        function spawnEnemy(){
+          GameObjects.push(new Object(1, "enemy", true, 50, 50, Math.random() * (canvas.width - 50), canvas.height + 50, 0, (Math.random() * -2) -1, 0, 0, "orange"));
+        }
+
+
+        function Object(lives, name, alive, width, height, positionX, positionY, velocityX, velocityY, accelerationX, accelerationY, color) {
+
+          this.lives = lives;
+
+          this.name = name;
+          this.alive = alive;
+
+          this.width = width;
+          this.height = height;
+
+          this.positionX = positionX;
+          this.positionY = positionY;
+
+          this.velocityX = velocityX;
+          this.velocityY = velocityY;
+
+          this.accelerationX = accelerationX;
+          this.accelerationY = accelerationY;
+
+          this.color = color;
+
+
+          this.detectCollisionWith = function(obj){
+            if (this.positionX < obj.positionX + obj.width &&
+                this.positionX + this.width > obj.positionX &&
+                this.positionY < obj.positionY + obj.height &&
+                this.height + this.positionY > obj.positionY) {
+
+
+                  this.lives -= 1;
+                  obj.lives -= 1;
+
+                  let origonalcolor1 = this.color
+                  let origonalcolor2 = obj.color
+
+                  this.color = "red";
+                  obj.color = "red";
+
+                  setTimeout(function() {
+                      this.color = origonalcolor1
+                      obj.color = origonalcolor2
+                  }, 350);
+
+
+                  if(this.lives == 0){
+                    this.alive = false;
+                  }
+
+                  if(obj.lives == 0){
+                    obj.alive = false;
+                  }
+
+                  if(this.name == "bullet"){
+                    score += 1;
+                  }
+
+                }
+          }
+
+          //return this;
+
+        }
+
+        let player = new Object(3, "player", true, 50, 35, (canvas.width-50)/2, 30, 0, 0, 0, 0, "gray");
+        GameObjects.push(player);
+
+        let nexus = new Object(3, "nexus", true, canvas.width, 20, 0, 0, 0, 0, 0, 0, "blue");
+        GameObjects.push(nexus);
+
+
+        let spawnEnemies = setInterval(spawnEnemy, 1000)
+
+        let update = setInterval(function(){
+
+          if(!player.alive || !nexus.alive){
+            clearInterval(update)
+            setTimeout(function() {
+                gameOver(score)
+            }, 40);
+          }
+
+
+          if(keys[32]){
+            GameObjects.push(new Object(1, "bullet", true, 10, 10, player.positionX + (player.width - 10)/2, player.positionY + player.height, 0, 10, 0, 0, "black"));
+            keys[32] = false;
+          }
+
+          if(keys[37] && canmoveleft){
+            player.velocityX -= 1;
+            canmoveright = true;
+          }
+
+          if(keys[39] && canmoveright){
+            player.velocityX += 1;
+            canmoveleft = true;
+          }
+
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+          GameObjects.forEach(draw)
+
+          detectCollisions()
+
+          GameObjects = GameObjects.filter(object => object.alive)
+
+
+
+        }, 20)
+
+
+    }
+
+      let highScores = []
+
+
+
+      let keys = {};
+
+      window.addEventListener('keydown', e => keys[e.keyCode] = true);
+      window.addEventListener('keyup', e => keys[e.keyCode] = false);
+
+
+      window.onload = setUpStartSceen
+
+    </script>
+  </body>
+
+
+</html>

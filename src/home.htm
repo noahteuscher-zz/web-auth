@@ -1,0 +1,203 @@
+<html>
+
+  <head>
+
+    <link href='https://fonts.googleapis.com/css?family=Space Mono' rel='stylesheet'>
+
+    <style>
+
+      header{
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        border-bottom: 3px solid black;
+        background: linear-gradient(to right, black 15%, white 85%);  width: 100%;
+      }
+
+      div#title, #plug{
+        font-size: 3.5vw;
+        color: white;
+        text-align: center;
+        width: 50%;
+        margin: 0 auto;
+      }
+
+      div#plug{
+        border-top: 3px solid white;
+        font-size: 2vw;
+        padding-bottom: .2em;
+        padding-bottom: .3em;
+      }
+
+      body{
+        font-family: "Space Mono"
+      }
+
+      button{
+        background-color: black;
+        border: none;
+        color: white;
+        padding: 1vh;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 2.5vh;
+        cursor: pointer;
+        border: 1.5px solid blue;
+        border-radius: 30px;
+        margin: 1vh;
+      }
+
+      button span{
+        cursor: pointer;
+        display: inline-block;
+        position: relative;
+        transition: 0.5s;
+      }
+
+      button span:after {
+        content: '\00bb';
+        position: absolute;
+        opacity: 0;
+        top: 0;
+        right: -20px;
+        transition: 0.5s;
+      }
+
+      button:hover span {
+        padding-right: 25px;
+      }
+
+      button:hover span:after {
+        opacity: 1;
+        right: 0;
+      }
+
+
+      button:hover {
+        background-color: blue;
+        border: 1.5px solid black;
+      }
+
+
+      input{
+        margin: 1vh;
+        color: blue;
+        font-size: 2.5vh;
+      }
+
+      div#container{
+        display: flex;
+        flex-direction: column;
+        width: 30%;
+        margin: 0 auto;
+        margin-top: 26vh;
+        border: 1px dashed black;
+      }
+    </style>
+  </head>
+
+  <header>
+    <div id = "title">
+      N E X U S
+    </div>
+    <div id = "plug">
+      a game by noah teuscher
+    </div>
+  </header>
+
+  <body>
+
+
+    <div id = "container">
+
+      <input id = "username" type = "text" placeholder = "username">
+
+      </input>
+
+      <input id = "password" type = "password" placeholder = "password">
+
+      </input>
+
+      <button id = "login">
+          <span>login</span>
+      </button>
+
+      <button id = "register">
+          <span>create an account</span>
+      </button>
+
+      <button id = "highscores">
+          <span>see highscores</span>
+      </button>
+
+  </div>
+
+  </body>
+
+  <script>
+
+
+  function checkError(){
+
+    let error = window.location.href.split("error=")[1]
+    if(error != null){
+      let errormessage = document.createElement("div")
+      errormessage.style.color = "red"
+      errormessage.style.fontSize = "1.7vh"
+      errormessage.style.textAlign = "center"
+      errormessage.innerText = "incorrect username or password"
+      container.appendChild(errormessage)
+    }
+  }
+
+  function setUp(){
+
+    let username = document.getElementById("username")
+
+    let password = document.getElementById("password")
+
+    let register = document.getElementById("register")
+
+    let login = document.getElementById("login")
+
+    let highscores = document.getElementById("highscores")
+
+    let container = document.getElementById("container")
+
+    register.onclick = function(){
+      window.location = ("/registration")
+    }
+
+    login.onclick = function(){
+
+
+      let headers = new Headers();
+      headers.append('Content-Type', 'application/json');
+      headers.append('Accept', 'application/json');
+
+      fetch('/login', {
+          method: 'POST',
+          mode: 'same-origin',
+          redirect: 'follow',
+          credentials: 'include',
+          headers: headers,
+          body: JSON.stringify({
+              username: username.value,
+              password: password.value
+          })
+      }).then(response => window.location = response.url)
+    }
+
+    checkError()
+
+  }
+
+  highscores.onclick = function(){
+    window.open("/highscores")
+  }
+
+  window.onload = setUp
+
+  </script>
+</html>

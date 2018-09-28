@@ -1,0 +1,122 @@
+<html>
+  <head>
+
+    <link href='https://fonts.googleapis.com/css?family=Space Mono' rel='stylesheet'>
+    <style>
+
+      header{
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        background: linear-gradient(to top, black 30%, gray);  width: 100%;
+        margin-bottom: 4vw;
+      }
+
+      body{
+        font-family: "Space Mono";
+        background: black
+      }
+
+      div#title{
+        font-size: 3.5vw;
+        color: white;
+        text-align: center;
+        width: 50%;
+        margin: 0 auto;
+      }
+
+      div#highscores{
+        display: flex;
+        flex-direction: column;
+      }
+
+      div.highscorecontainer{
+        width: 50%;
+        margin: 0 auto;
+        font-size: 2.5vw;
+        font-weight: lighter;
+        color: white;
+      }
+
+      div.namediv, .scorediv{
+        text-align: left;
+        width: 45%;
+        margin: 0 auto;
+        padding-left: 1vw;
+      }
+
+      div.scorediv{
+        text-align: right;
+        padding-left: 0;
+        padding-right: 1vw;
+      }
+
+      div.rankdiv{
+        width: 10%;
+        text-align: center;
+      }
+
+    </style>
+  </head>
+
+
+  <body id = "body">
+    <header>
+      <div id = "title">
+        H I G H S C O R E S
+      </div>
+    </header>
+
+    <div id = "highscores">
+
+    </div>
+    <script>
+
+
+    function createDiv(obj, rank){
+
+      let rankdiv = document.createElement("div")
+      rankdiv.innerText = rank + "."
+      rankdiv.className = "rankdiv"
+
+      let name = document.createElement("div")
+      name.innerText = obj.name
+      name.className = "namediv"
+
+      let score = document.createElement("div")
+      score.innerText = obj.score
+      score.className = "scorediv"
+
+      let container = document.createElement("div")
+      container.className = "highscorecontainer"
+      container.style.display = "flex"
+      container.style.flexDirection = "row"
+      container.appendChild(rankdiv)
+      container.appendChild(name)
+      container.appendChild(score)
+
+
+      highscoresdiv.appendChild(container)
+    }
+
+    let body = document.getElementById("body")
+    let highscoresdiv = document.getElementById("highscores")
+
+      function onLoad(){
+
+        let url = new URL("http://localhost:3000/high_scores")
+
+        fetch(url).then(response => response.json())
+        .then(function(response){
+
+          response.forEach((obj, index) => createDiv(obj, index + 1))
+
+        })
+
+      }
+
+      window.onload = onLoad
+
+    </script>
+  </body>
+</html>
