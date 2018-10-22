@@ -16,5 +16,5 @@ Authentication is fully secure and programmed from scratch. Sessions are secured
 1. Download the project
 2. Navigate to the project folder in terminal and install dependencies with command "npm install"
 3. run the server with command "npm start". The terminal will print which port it is being run on.
-4. Navigate to the port on which the server is being hosted (i.e. localhost:3000) in your web browswer
+4. Navigate to the port on which the server is being hosted (i.e. localhost:3000) in your web browser
 5. Enjoy!
