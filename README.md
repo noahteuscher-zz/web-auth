@@ -4,6 +4,7 @@ Secure web authentication, coded from scratch.
 ## Description
 
 Frontend: HTML/CSS/Javascript
+
 Backend: Node.js, SQLite
 
 This is a simple web applaction that allows users to create an account, log in, and play a simple game. High scores are saved in a database. 
